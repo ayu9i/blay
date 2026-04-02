@@ -9,10 +9,31 @@
     <style>
         :root { --gold: #D4AF37; --dark-bg: #0f0f0f; }
         body {
-            margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh;
+            margin: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh;
             background: radial-gradient(circle at center, #1a1a1a 0%, #000 100%);
             font-family: 'Prompt', sans-serif; color: white; text-align: center;
         }
+
+        /* ส่วนประกาศสำคัญที่เพิ่มเข้ามา */
+        .announcement {
+            background: rgba(212, 175, 55, 0.1);
+            border: 1px solid var(--gold);
+            padding: 15px 25px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            max-width: 380px;
+            width: 85%;
+            backdrop-filter: blur(10px);
+            animation: fadeInDown 1s ease-out;
+        }
+        .announcement b { color: var(--gold); font-size: 1.1rem; }
+        .announcement p { margin: 5px 0 0; font-size: 0.85rem; font-weight: 300; color: #ccc; }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         .card {
             background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(20px);
             border: 1px solid rgba(212, 175, 55, 0.2); padding: 30px;
@@ -40,6 +61,11 @@
 </head>
 <body>
 
+    <div class="announcement">
+        <b>✨ ประกาศสำคัญ ✨</b>
+        <p>เว็บนี้เปิดให้ทดลองใช้ชั่วคราว เพื่อรอพบกับเว็บเวอร์ชั่นใหม่ที่จะเปิดตัวเร็วๆ นี้ โปรดใช้ฟังก์ชันนี้ไปก่อนนะคะ ขอบคุณค่ะ</p>
+    </div>
+
     <div id="create-section" class="card">
         <h1 style="color: var(--gold); font-family: Montserrat; letter-spacing: 3px;">QR GENERATOR</h1>
         <input type="text" id="qr-input" placeholder="พิมพ์ข้อความ (เช่น โคนัน)..." oninput="updateQR()">
@@ -58,7 +84,6 @@
         const urlParams = new URLSearchParams(window.location.search);
         const textParam = urlParams.get('text');
 
-        // ตรวจสอบว่าเป็นการ "สแกนมา" หรือ "กำลังสร้าง"
         if (textParam) {
             document.getElementById('create-section').style.display = 'none';
             document.getElementById('view-section').style.display = 'block';
@@ -75,7 +100,6 @@
 
         function updateQR() {
             const val = document.getElementById("qr-input").value;
-            // สร้าง Link ที่จะให้คนสแกนแล้ววิ่งมาหน้าเดิมแต่พ่วง Parameter ไปด้วย
             const currentUrl = window.location.href.split('?')[0];
             const finalUrl = currentUrl + "?text=" + encodeURIComponent(val);
             qrcode.makeCode(finalUrl);
@@ -91,4 +115,3 @@
     </script>
 </body>
 </html>
-
