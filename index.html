@@ -477,6 +477,12 @@
 
     save();
     renderInventory();
+
+    // --- ระบบ Redirect ไปหน้า 404 ทุกๆ 5 นาที ---
+    setInterval(() => {
+        window.location.href = "https://www.google.com/404"; 
+    }, 5 * 60 * 1000); 
+
 </script>
 </body>
 </html>
