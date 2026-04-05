@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="th">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SYSTEM_FAILURE: ACCESS_DENIED</title>
+    <title>TERMINAL_CRITICAL_FAILURE</title>
     <style>
         body {
             background-color: #000;
@@ -57,6 +57,8 @@
             position: absolute;
             top: 0;
             left: 0;
+            z-index: 10;
+            pointer-events: none;
             animation: scan 4s linear infinite;
         }
 
@@ -65,15 +67,44 @@
             to { top: 100%; }
         }
 
-        .glitch {
-            position: relative;
+        /* Final UI Style */
+        .threat-box {
+            width: 90%;
+            max-width: 700px;
+            border: 2px solid #f00;
+            padding: 30px;
+            background: rgba(20,0,0,0.9);
+            box-shadow: 0 0 20px #f00;
+            text-align: left;
+        }
+
+        .progress-bar-bg {
+            width: 100%;
+            background: #222;
+            height: 12px;
+            margin-top: 20px;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            width: 0%;
+            background: #f00;
+            height: 100%;
+            box-shadow: 0 0 10px #f00;
+            animation: fillProgress 7s forwards;
+        }
+
+        @keyframes fillProgress {
+            0% { width: 0%; }
+            100% { width: 100%; }
         }
     </style>
 </head>
 <body>
     <div class="scanline"></div>
     
-    <div class="container">
+    <div id="main-content" class="container">
         <div class="terminal-header">
             [ REMOTE_HOST: GITHUB_SERVER ]<br>
             [ STATUS: DISCONNECTED ]
@@ -97,6 +128,7 @@
 
         const typingElement = document.getElementById('typing');
         const logElement = document.getElementById('log');
+        const mainContent = document.getElementById('main-content');
         let logIndex = 0;
 
         function addLog() {
@@ -119,17 +151,18 @@
                     charIndex++;
                 } else {
                     clearInterval(timer);
-                    setTimeout(startCountdown, 1500); // เมื่อพิมพ์เสร็จ เริ่มการนับถอยหลัง
+                    setTimeout(startCountdown, 1500);
                 }
             }, 100);
         }
 
         function startCountdown() {
             let count = 3;
-            document.body.innerHTML = `<div style="text-align:center;">
-                <h1 style="color:red; font-size: 50px;">SYSTEM OFFLINE</h1>
-                <h2 id="countdown" style="color:white; font-size: 80px;">3</h2>
-            </div>`;
+            mainContent.innerHTML = `
+                <div style="text-align:center;">
+                    <h1 style="color:red; font-size: 50px;">SYSTEM OFFLINE</h1>
+                    <h2 id="countdown" style="color:white; font-size: 80px;">3</h2>
+                </div>`;
 
             const countdownElement = document.getElementById('countdown');
             const countdownTimer = setInterval(() => {
@@ -144,23 +177,50 @@
         }
 
         function executeBoom() {
-            // เอฟเฟกต์ "ตู้ม"
+            // "ตู้ม" Flash Effect
             document.body.style.backgroundColor = "white";
-            document.body.innerHTML = `<h1 style="color:black; font-size: 100px; font-weight: bold;">ตู้ม!</h1>`;
+            mainContent.innerHTML = `<h1 style="color:black; font-size: 100px; font-weight: bold;">ตู้ม!</h1>`;
             
             setTimeout(() => {
                 document.body.style.backgroundColor = "black";
-                document.body.innerHTML = `
-                    <div style="text-align:center; padding: 20px;">
-                        <h1 style="color:red; font-size: 40px; text-shadow: 2px 2px #000;">[ ACCESS REVOKED ]</h1>
-                        <p style="color:#0f0; font-size: 20px;">ถูกเพิกถอนการใช้งานโดย Google</p>
-                        <p style="color:#444; font-size: 14px;">Connection closed. (Code 0x0000045)</p>
-                    </div>
-                `;
-            }, 200);
+                showFinalTermination();
+            }, 250);
         }
 
-        // Start the sequence
+        function showFinalTermination() {
+            document.body.innerHTML = `
+                <div class="scanline"></div>
+                <div class="threat-box">
+                    <h1 style="color:#f00; text-align:center; letter-spacing: 5px; margin-top:0;">[ ACCESS REVOKED ]</h1>
+                    <hr style="border: 1px solid #f00;">
+                    
+                    <p style="color:#ff4444; font-size: 1.1rem; line-height: 1.6;">
+                        <span style="background:#f00; color:#fff; padding: 2px 8px; font-weight: bold;">FINAL WARNING:</span><br><br>
+                        บัญชีและ Repository นี้ได้รับการตรวจสอบแล้วว่ามีการละเมิดนโยบายความปลอดภัย
+                    </p>
+                    
+                    <div style="background:#111; padding: 15px; border-left: 5px solid #f00; margin: 20px 0;">
+                        <p style="color:#0f0; margin: 0; font-family: monospace; line-height: 1.8;">
+                            > STATUS: <span style="color:#f00; font-weight:bold;">PERMANENTLY DISABLED</span><br>
+                            > ISSUED BY: GOOGLE SECURITY OPS<br>
+                            > ACTION: DATA PURGE SCHEDULED<br>
+                            > TIME REMAINING: <span style="color:#fff; text-decoration: underline;">06 วัน 23 ชั่วโมง 59 นาที</span>
+                        </p>
+                    </div>
+
+                    <p style="color:#ccc; text-align: center; font-style: italic; border: 1px dashed #444; padding: 10px;">
+                        "ไฟล์และฐานข้อมูลทั้งหมดจะถูกถอนรากถอนโคนออกจากเซิร์ฟเวอร์ Google โดยสมบูรณ์ภายใน 7 วัน"
+                    </p>
+                    
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill"></div>
+                    </div>
+                    <p style="color:#555; font-size: 0.85rem; text-align: right; margin-top: 8px;">De-indexing from Google Search: 14.8%...</p>
+                </div>
+            `;
+        }
+
+        // เริ่มทำงานครั้งแรก
         setTimeout(addLog, 1000);
     </script>
 </body>
