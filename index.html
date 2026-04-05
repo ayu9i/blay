@@ -119,11 +119,45 @@
                     charIndex++;
                 } else {
                     clearInterval(timer);
-                    setTimeout(() => {
-                        document.body.innerHTML = "<h1 style='color:red; text-align:center; width:100%;'>SYSTEM OFFLINE</h1>";
-                    }, 2000);
+                    setTimeout(startCountdown, 1500); // เมื่อพิมพ์เสร็จ เริ่มการนับถอยหลัง
                 }
             }, 100);
+        }
+
+        function startCountdown() {
+            let count = 3;
+            document.body.innerHTML = `<div style="text-align:center;">
+                <h1 style="color:red; font-size: 50px;">SYSTEM OFFLINE</h1>
+                <h2 id="countdown" style="color:white; font-size: 80px;">3</h2>
+            </div>`;
+
+            const countdownElement = document.getElementById('countdown');
+            const countdownTimer = setInterval(() => {
+                count--;
+                if (count > 0) {
+                    countdownElement.innerText = count;
+                } else {
+                    clearInterval(countdownTimer);
+                    executeBoom();
+                }
+            }, 1000);
+        }
+
+        function executeBoom() {
+            // เอฟเฟกต์ "ตู้ม"
+            document.body.style.backgroundColor = "white";
+            document.body.innerHTML = `<h1 style="color:black; font-size: 100px; font-weight: bold;">ตู้ม!</h1>`;
+            
+            setTimeout(() => {
+                document.body.style.backgroundColor = "black";
+                document.body.innerHTML = `
+                    <div style="text-align:center; padding: 20px;">
+                        <h1 style="color:red; font-size: 40px; text-shadow: 2px 2px #000;">[ ACCESS REVOKED ]</h1>
+                        <p style="color:#0f0; font-size: 20px;">ถูกเพิกถอนการใช้งานโดย Google</p>
+                        <p style="color:#444; font-size: 14px;">Connection closed. (Code 0x0000045)</p>
+                    </div>
+                `;
+            }, 200);
         }
 
         // Start the sequence
