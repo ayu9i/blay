@@ -35,6 +35,10 @@
         .config-btn { position: fixed; top: 25px; left: 25px; background: var(--glass); border: 1px solid var(--conan-gold); width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 1001; transition: 0.3s; }
         .config-btn:hover { background: var(--conan-gold); color: black; transform: rotate(90deg); }
 
+        /* Language Toggle */
+        .lang-btn { position: fixed; top: 25px; right: 25px; background: var(--glass); border: 1px solid var(--glass-border); padding: 8px 15px; border-radius: 20px; color: #fff; cursor: pointer; z-index: 1001; font-size: 0.8rem; transition: 0.3s; }
+        .lang-btn:hover { border-color: var(--conan-gold); background: rgba(212, 175, 55, 0.1); }
+
         /* --- Premium Modal --- */
         #updateModal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 2000; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(15px); }
         .modal-content { background: linear-gradient(145deg, #111, #000); border: 1px solid var(--conan-gold); border-radius: 30px; padding: 40px; max-width: 450px; width: 85%; text-align: center; box-shadow: 0 0 50px rgba(212, 175, 55, 0.2); }
@@ -93,13 +97,30 @@
         .bot { background: #1a1a1a; align-self: flex-start; border: 1px solid #333; color: #eee; }
         .user { background: var(--conan-gold); color: #000; align-self: flex-end; font-weight: 500; }
 
-        /* Door System */
-        .door-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999; display: flex; }
-        .door { position: absolute; width: 50%; height: 100%; background: #000; transition: 0.6s cubic-bezier(0.7, 0, 0.3, 1); }
-        .door-left { left: -50%; border-right: 1px solid var(--conan-gold); }
-        .door-right { right: -50%; border-left: 1px solid var(--conan-gold); }
+        /* Door System WITH PATTERNS */
+        .door-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999; display: flex; overflow: hidden;}
+        .door { position: absolute; width: 50%; height: 100%; background: #080808; transition: 0.8s cubic-bezier(0.7, 0, 0.3, 1); display: flex; align-items: center; justify-content: center;}
+        
+        /* Pattern Overlay on Doors */
+        .door::after {
+            content: ""; position: absolute; width: 100%; height: 100%;
+            background-image: 
+                radial-gradient(var(--conan-gold) 1px, transparent 1px),
+                linear-gradient(45deg, transparent 48%, var(--conan-gold) 50%, transparent 52%);
+            background-size: 40px 40px, 100% 100%;
+            opacity: 0.05;
+        }
+
+        .door-left { left: -50%; border-right: 2px solid var(--conan-gold); }
+        .door-right { right: -50%; border-left: 2px solid var(--conan-gold); }
+        
+        /* Keyhole Icon in Middle */
+        .door-left::before { content: "🔑"; position: absolute; right: -25px; font-size: 40px; filter: drop-shadow(0 0 10px var(--conan-gold)); z-index: 10; opacity: 0; transition: 0.3s; }
+        .door-right::before { content: ""; position: absolute; left: -5px; width: 10px; height: 60px; background: var(--conan-gold); border-radius: 0 10px 10px 0; opacity: 0; }
+
         .door-container.active .door-left { transform: translateX(100%); }
         .door-container.active .door-right { transform: translateX(-100%); }
+        .door-container.active .door-left::before { opacity: 1; }
 
         /* Elements */
         select { background: #111; color: #fff; border: 1px solid var(--glass-border); padding: 12px; border-radius: 12px; width: 100%; cursor: pointer; outline: none; }
@@ -114,11 +135,13 @@
 </head>
 <body>
 
+<div class="lang-btn" onclick="toggleLanguage()" id="langToggle">EN | TH</div>
 <div class="config-btn" onclick="toggleUIPanel()">⚙️</div>
+
 <div id="uiPanel">
-    <div class="panel-title" style="color:var(--conan-gold); font-size: 1.2rem; margin-bottom: 30px; font-weight: 600;">INTERFACE CONFIG</div>
+    <div class="panel-title" id="txt-config-title" style="color:var(--conan-gold); font-size: 1.2rem; margin-bottom: 30px; font-weight: 600;">INTERFACE CONFIG</div>
     <div class="setting-item" style="margin-bottom: 25px;">
-        <label style="font-size: 0.7rem; text-transform: uppercase; opacity: 0.5;">Accent Color</label>
+        <label id="txt-accent-label" style="font-size: 0.7rem; text-transform: uppercase; opacity: 0.5;">Accent Color</label>
         <select onchange="updateTheme(this.value)" style="margin-top: 10px;">
             <option value="#d4af37">Gold Leaf</option>
             <option value="#37a6d4">Detective Blue</option>
@@ -127,30 +150,33 @@
         </select>
     </div>
     <div class="setting-item" style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
-        <label style="font-size: 0.7rem; text-transform: uppercase; opacity: 0.5;">Helper Bot</label>
+        <label id="txt-helper-label" style="font-size: 0.7rem; text-transform: uppercase; opacity: 0.5;">Helper Bot</label>
         <input type="checkbox" checked onchange="toggleBotUI(this.checked)">
     </div>
     <div class="setting-item">
-        <label style="font-size: 0.7rem; text-transform: uppercase; opacity: 0.5;">Edge Smoothing</label>
+        <label id="txt-radius-label" style="font-size: 0.7rem; text-transform: uppercase; opacity: 0.5;">Edge Smoothing</label>
         <input type="range" min="0" max="40" value="16" oninput="updateRadius(this.value)" style="width: 100%; margin-top: 15px;">
     </div>
-    <button class="btn-main btn-gold" onclick="toggleUIPanel()" style="margin-top:40px; border-radius: 50px;">APPLY CHANGES</button>
+    <button class="btn-main btn-gold" id="txt-apply-btn" onclick="toggleUIPanel()" style="margin-top:40px; border-radius: 50px;">APPLY CHANGES</button>
 </div>
 
 <div id="updateModal">
     <div class="modal-content">
         <div style="color: var(--conan-gold); font-size: 0.8rem; letter-spacing: 3px; margin-bottom: 10px;">SYSTEM UPDATE</div>
-        <h2 style="margin: 0; font-family: 'Cinzel';">VERSION 3.6 MAX</h2>
-        <div class="update-list">
+        <h2 style="margin: 0; font-family: 'Cinzel';" id="txt-modal-ver">VERSION 3.6 MAX</h2>
+        <div class="update-list" id="txt-modal-list">
             • <b>Advanced Data:</b> เพิ่มชุดข้อมูลคดีสำคัญ 100%<br>
             • <b>MAX UI:</b> ปรับปรุงอินเทอร์เฟซแบบ Ultra Premium<br>
             • <b>Logic Fix:</b> ระบบ Anti-Repeat ตรวจสอบประวัติสมบูรณ์แบบ
         </div>
-        <button class="btn-main btn-gold" onclick="closeModal()" style="border-radius: 50px;">ENTER SYSTEM</button>
+        <button class="btn-main btn-gold" id="txt-modal-btn" onclick="closeModal()" style="border-radius: 50px;">ENTER SYSTEM</button>
     </div>
 </div>
 
-<div class="door-container" id="doorSystem"><div class="door door-left"></div><div class="door door-right"></div></div>
+<div class="door-container" id="doorSystem">
+    <div class="door door-left"></div>
+    <div class="door door-right"></div>
+</div>
 
 <div class="container">
     <h1 id="mainTitle">CONAN HUB</h1>
@@ -161,13 +187,13 @@
         </div>
         
         <div class="btn-group-grid">
-            <button class="btn-main btn-gold" style="grid-column: span 2;" onclick="spinEverything()">RANDOM ALL ACCESS</button>
-            <button class="btn-main btn-dark" style="grid-column: span 2;" onclick="spinSeries()">TV SERIES SELECTION</button>
+            <button class="btn-main btn-gold" id="txt-btn-all" style="grid-column: span 2;" onclick="spinEverything()">RANDOM ALL ACCESS</button>
+            <button class="btn-main btn-dark" id="txt-btn-tv" style="grid-column: span 2;" onclick="spinSeries()">TV SERIES SELECTION</button>
         </div>
 
         <div class="btn-group-grid">
-            <button class="btn-main btn-dark" onclick="spinMovie()">THE MOVIES</button>
-            <button class="btn-main btn-dark" onclick="spinLupin()">VS LUPIN III</button>
+            <button class="btn-main btn-dark" id="txt-btn-movie" onclick="spinMovie()">THE MOVIES</button>
+            <button class="btn-main btn-dark" id="txt-btn-lupin" onclick="spinLupin()">VS LUPIN III</button>
         </div>
 
         <div style="margin-top: 15px;">
@@ -181,21 +207,21 @@
                     <option value="detective_boys">🔍 แก๊งนักสืบเยาวชน</option>
                     <option value="shinichi">⚽ คุโด้ ชินอิจิ</option>
                 </select>
-                <button class="btn-main btn-gold" onclick="spinChar()">FILTER</button>
+                <button class="btn-main btn-gold" id="txt-btn-filter" onclick="spinChar()">FILTER</button>
             </div>
         </div>
 
         <div class="history-card">
             <div class="history-title">
-                CASE HISTORY 
-                <span onclick="clearAllHistory()" style="cursor:pointer; opacity:0.5; font-size: 0.7rem;">[ CLEAR ALL ]</span>
+                <span id="txt-history-title">CASE HISTORY</span> 
+                <span onclick="clearAllHistory()" style="cursor:pointer; opacity:0.5; font-size: 0.7rem;" id="txt-clear-history">[ CLEAR ALL ]</span>
             </div>
             <div id="historyList" class="history-list"></div>
         </div>
 
         <div class="inventory-card">
             <div class="inventory-header" onclick="toggleInventory()">
-                <div class="inventory-title">DATABASE CATALOG</div>
+                <div class="inventory-title" id="txt-inv-title">DATABASE CATALOG</div>
                 <div id="invArrow">▼</div>
             </div>
             <div id="inventoryList" class="inventory-list" style="display: none; margin-top: 15px; font-size: 0.8rem; color: #888;"></div>
@@ -207,18 +233,106 @@
 <div id="chatWindow">
     <div class="chat-header">ASSISTANT V3.6</div>
     <div class="chat-body" id="chatBody">
-        <div class="msg bot">สวัสดีครับ Ayu! พร้อมช่วยสืบค้นคดีในระบบ MAX UI แล้วครับ</div>
+        <div class="msg bot" id="txt-bot-greet">สวัสดีครับ พร้อมช่วยสืบค้นคดีในระบบ MAX UI แล้วครับ</div>
     </div>
     <div style="padding: 15px; background: #111; border-top: 1px solid var(--glass-border);">
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-            <button class="btn-main btn-dark" style="padding: 8px; font-size: 0.7rem;" onclick="botReply('ตอนแนะนำ')">แนะนำตอน</button>
-            <button class="btn-main btn-dark" style="padding: 8px; font-size: 0.7rem;" onclick="botReply('ใครคือบอส')">บอสคือใคร?</button>
+            <button class="btn-main btn-dark" style="padding: 8px; font-size: 0.7rem;" id="txt-chat-rec" onclick="botReply('ตอนแนะนำ')">แนะนำตอน</button>
+            <button class="btn-main btn-dark" style="padding: 8px; font-size: 0.7rem;" id="txt-chat-boss" onclick="botReply('ใครคือบอส')">บอสคือใคร?</button>
         </div>
     </div>
 </div>
 
 <script>
-    // [Data remains same as original code for functionality integrity]
+    // [Language System]
+    let currentLang = 'th';
+    const i18n = {
+        th: {
+            title: "กดปุ่มด้านล่างเพื่อเริ่มการสุ่มคดี",
+            ready: "ระบบพร้อมใช้งาน",
+            config: "ตั้งค่าอินเทอร์เฟซ",
+            accent: "สีเน้นหลัก",
+            helper: "หุ่นยนต์ช่วยเหลิอ",
+            radius: "ความมนของขอบ",
+            apply: "ยืนยันการเปลี่ยน",
+            btnAll: "สุ่มทุกอย่างในระบบ",
+            btnTv: "สุ่มเฉพาะทีวีซีรีส์",
+            btnMovie: "เดอะมูฟวี่",
+            btnLupin: "ปะทะ ลูแปงที่ 3",
+            btnFilter: "กรองข้อมูล",
+            history: "ประวัติการสืบคดี",
+            clear: "[ ล้างประวัติ ]",
+            catalog: "คลังข้อมูลทั้งหมด",
+            modalVer: "เวอร์ชัน 3.6 MAX",
+            modalBtn: "เข้าสู่ระบบ",
+            botGreet: "สวัสดีครับ พร้อมช่วยสืบค้นคดีในระบบ MAX UI แล้วครับ",
+            chatRec: "แนะนำตอน",
+            chatBoss: "บอสคือใคร?",
+            streaming: "กำลังดึงข้อมูลซีรีส์",
+            theater: "ฉบับภาพยนตร์",
+            character: "หมวดตัวละครพิเศษ",
+            confirmWipe: "ยืนยันการล้างฐานข้อมูลหรือไม่?"
+        },
+        en: {
+            title: "Press below to start investigation",
+            ready: "System Ready",
+            config: "INTERFACE CONFIG",
+            accent: "Accent Color",
+            helper: "Helper Bot",
+            radius: "Edge Smoothing",
+            apply: "APPLY CHANGES",
+            btnAll: "RANDOM ALL ACCESS",
+            btnTv: "TV SERIES SELECTION",
+            btnMovie: "THE MOVIES",
+            btnLupin: "VS LUPIN III",
+            btnFilter: "FILTER",
+            history: "CASE HISTORY",
+            clear: "[ CLEAR ALL ]",
+            catalog: "DATABASE CATALOG",
+            modalVer: "VERSION 3.6 MAX",
+            modalBtn: "ENTER SYSTEM",
+            botGreet: "Hello! Ready to investigate the cases in MAX UI.",
+            chatRec: "Rec. Episode",
+            chatBoss: "Who's Boss?",
+            streaming: "TV SERIES STREAMING",
+            theater: "THEATER EDITION",
+            character: "CHARACTER SPECIAL",
+            confirmWipe: "Confirm Wipe Database?"
+        }
+    };
+
+    function toggleLanguage() {
+        currentLang = currentLang === 'th' ? 'en' : 'th';
+        updateLanguageUI();
+    }
+
+    function updateLanguageUI() {
+        const t = i18n[currentLang];
+        document.getElementById('txt-config-title').innerText = t.config;
+        document.getElementById('txt-accent-label').innerText = t.accent;
+        document.getElementById('txt-helper-label').innerText = t.helper;
+        document.getElementById('txt-radius-label').innerText = t.radius;
+        document.getElementById('txt-apply-btn').innerText = t.apply;
+        document.getElementById('txt-btn-all').innerText = t.btnAll;
+        document.getElementById('txt-btn-tv').innerText = t.btnTv;
+        document.getElementById('txt-btn-movie').innerText = t.btnMovie;
+        document.getElementById('txt-btn-lupin').innerText = t.btnLupin;
+        document.getElementById('txt-btn-filter').innerText = t.btnFilter;
+        document.getElementById('txt-history-title').innerText = t.history;
+        document.getElementById('txt-clear-history').innerText = t.clear;
+        document.getElementById('txt-inv-title').innerText = t.catalog;
+        document.getElementById('txt-modal-ver').innerText = t.modalVer;
+        document.getElementById('txt-modal-btn').innerText = t.modalBtn;
+        document.getElementById('txt-chat-rec').innerText = t.chatRec;
+        document.getElementById('txt-chat-boss').innerText = t.chatBoss;
+        
+        if(document.getElementById('epDisplay').innerText.includes("กดปุ่ม") || document.getElementById('epDisplay').innerText.includes("Press below")) {
+            document.getElementById('epDisplay').innerText = t.title;
+        }
+        document.getElementById('badge').innerText = t.ready;
+    }
+
+    // [Original Data & Logic]
     const movieNames = ["คดีปริศนาระเบิดระฟ้า", "คดีฆาตกรรมไพ่ปริศนา", "ปริศนาพ่อมดคนสุดท้ายแห่งศตวรรษ", "คดีฆาตกรรมนัยน์ตาปริศนา", "คดีปริศนาเส้นตายสู่สวรรค์", "ปริศนาบนถนนสายมรณะ", "คดีฆาตกรรมแห่งเมืองปริศนา", "มนตราแห่งรัตติกาลสีเงิน", "ยุทธการเหนือห้วงทะเลลึก", "บทเพลงมรณะแด่เหล่าเหล่านักสืบ", "ปริศนามหาขุมทรัพย์โจรสลัด", "บทเพลงแห่งความตาย", "ปริศนานักฆ่าทรยศ", "ปริศนามรณะเหนือน่านฟ้า", "15 นาทีเฉียดตายไขปริศนามรณะ", "ภาคระทึกขวัญยุทธจักรลูกหนัง", "ฝ่าวิกฤติเรือรบมรณะ", "ปริศนากระสุนมรณะ", "ปริศนาทานตะวันมรณะ", "ปริศนาเงามรณะตัวสำรอง", "ปริศนาเพลงกลอนซ่อนรัก", "ปฏิบัติการสายลับศูนย์", "ศึกชิงอัญมณีสีคราม", "กระสุนสีเพลิง", "เจ้าสาวฮาโลวีน", "มฤตยูใต้น้ำทมิฬ", "ปริศนาปราการห้าแฉก", "ปริศนาภาพติดตามรณะ"];
 
     const charData = { 
@@ -262,9 +376,9 @@
         }, 1300);
     }
 
-    function updateUI(m, b) {
+    function updateUI(m, bKey) {
         document.getElementById('epDisplay').innerHTML = m;
-        document.getElementById('badge').innerHTML = b;
+        document.getElementById('badge').innerHTML = i18n[currentLang][bKey] || bKey;
     }
 
     function addH(t) {
@@ -276,19 +390,19 @@
     function save() {
         localStorage.setItem('conan_norepeat_v3', JSON.stringify(history));
         const l = document.getElementById('historyList');
-        if(!history.length) { l.innerHTML = '<div style="text-align:center; opacity:0.3; font-size:0.8rem;">NO CASE RECORDS</div>'; return; }
+        if(!history.length) { l.innerHTML = `<div style="text-align:center; opacity:0.3; font-size:0.8rem;">${currentLang === 'th' ? 'ไม่มีประวัติ' : 'NO CASE RECORDS'}</div>`; return; }
         l.innerHTML = history.slice(0, 10).map(h => `<div class="history-item"><span>${h.text}</span><span style="color:var(--danger); cursor:pointer;" onclick="delI(${h.id}, event)">✕</span></div>`).join('');
     }
 
     function delI(id, e) { e.stopPropagation(); history = history.filter(h => h.id !== id); save(); }
-    function clearAllHistory() { if(confirm("Confirm Wipe Database?")) { history = []; save(); } }
+    function clearAllHistory() { if(confirm(i18n[currentLang].confirmWipe)) { history = []; save(); } }
 
     function spinSeries() {
         startSpin(() => {
             let ep = Math.floor(Math.random() * 1100) + 1;
             let res = `Season ${Math.ceil(ep/52)} Episode ${ep}`;
             if(isDuplicate(res)) return spinSeries();
-            updateUI(res, "TV SERIES STREAMING");
+            updateUI(res, "streaming");
             addH(res);
         });
     }
@@ -298,7 +412,7 @@
             let i = Math.floor(Math.random() * movieNames.length);
             let res = `Movie ${i+1} <span>${movieNames[i]}</span>`;
             if(isDuplicate(res)) return spinMovie();
-            updateUI(res, "THEATER EDITION");
+            updateUI(res, "theater");
             addH(`Movie ${i+1}: ${movieNames[i]}`);
         });
     }
@@ -308,12 +422,21 @@
         if (r < 0.6) spinSeries(); else spinMovie();
     }
 
+    function spinLupin() {
+        startSpin(() => {
+            const items = ["Conan vs Lupin III: TV Special", "Conan vs Lupin III: The Movie"];
+            let res = items[Math.floor(Math.random() * items.length)];
+            updateUI(res, "theater");
+            addH(res);
+        });
+    }
+
     function spinChar() {
         startSpin(() => {
             const c = document.getElementById('charSelect').value;
             const pool = charData[c];
             let rawRes = pool[Math.floor(Math.random() * pool.length)];
-            updateUI(rawRes, "CHARACTER SPECIAL");
+            updateUI(rawRes, "character");
             addH(rawRes);
         });
     }
@@ -322,15 +445,16 @@
         const body = document.getElementById('chatBody');
         body.innerHTML += `<div class="msg user">${cmd}</div>`;
         setTimeout(() => {
-            let reply = "ขออภัยครับ ข้อมูลส่วนนี้กำลังปรับปรุง";
-            if(cmd === 'ตอนแนะนำ') reply = "ลองชม 'คดีฆาตกรรมเปียโนโซนาต้าแสงจันทร์' ดูครับ เป็นตำนานที่ลืมไม่ลงจริงๆ";
-            if(cmd === 'ใครคือบอส') reply = "ข้อมูลบ่งชี้ไปที่ 'คาราสุมะ เร็นยะ' มหาเศรษฐีที่ควรจะเสียชีวิตไปแล้วครับ";
+            let reply = currentLang === 'th' ? "ขออภัยครับ กำลังปรับปรุง" : "Sorry, under maintenance.";
+            if(cmd === 'ตอนแนะนำ') reply = "ลองชม 'คดีฆาตกรรมเปียโนโซนาต้าแสงจันทร์' ดูครับ เป็นตำนานจริงๆ";
+            if(cmd === 'ใครคือบอส') reply = "ข้อมูลบ่งชี้ไปที่ 'คาราสุมะ เร็นยะ' ครับ";
             body.innerHTML += `<div class="msg bot">${reply}</div>`;
             body.scrollTop = body.scrollHeight;
         }, 600);
     }
 
     // Initialize
+    updateLanguageUI();
     save();
 </script>
 </body>
