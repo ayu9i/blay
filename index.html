@@ -2,84 +2,168 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <title>Multi-Vibe GitHub Project</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MULTI-VIBE TERMINAL PRO</title>
+    <style>
+        :root {
+            --bg-color: #0d1117;
+            --text-color: #e6edf3;
+            --primary-color: #58a6ff;
+            --dark-color: #bc8cff;
+            --genz-color: #ff7b72;
+            --love-color: #ffa1d2;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .terminal {
+            width: 80%;
+            max-width: 800px;
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            padding-bottom: 20px;
+        }
+
+        .terminal-header {
+            background: #21262d;
+            padding: 10px;
+            display: flex;
+            gap: 8px;
+            border-bottom: 1px solid #30363d;
+        }
+
+        .dot { width: 12px; height: 12px; border-radius: 50%; }
+        .red { background: #ff5f56; }
+        .yellow { background: #ffbd2e; }
+        .green { background: #27c93f; }
+
+        .output-area {
+            height: 300px;
+            padding: 20px;
+            overflow-y: auto;
+            font-family: 'Courier New', Courier, monospace;
+            line-height: 1.6;
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            padding: 20px;
+            width: 80%;
+            max-width: 800px;
+        }
+
+        button {
+            padding: 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+            text-transform: uppercase;
+        }
+
+        .btn-dark { background: var(--dark-color); color: #000; }
+        .btn-genz { background: var(--genz-color); color: #000; }
+        .btn-love { background: var(--love-color); color: #000; }
+        button:hover { opacity: 0.8; transform: translateY(-2px); }
+
+        .line { margin-bottom: 5px; }
+        .prefix { color: #7ee787; margin-right: 10px; }
+    </style>
 </head>
 <body>
 
-    <h1>ระบบตรวจสอบสถานะ (Multi-Style Edition)</h1>
-    <p>ลองเปิดดูใน Console (F12) เพื่อดูความเบียวและความฉ่ำของโค้ดครับ</p>
+    <h2 style="margin-bottom: 20px;">GitHub Multi-Language Vibe Switcher</h2>
+
+    <div class="terminal">
+        <div class="terminal-header">
+            <div class="dot red"></div>
+            <div class="dot yellow"></div>
+            <div class="dot green"></div>
+            <span style="font-size: 12px; margin-left: 10px; opacity: 0.5;">Githud-Terminal.exe</span>
+        </div>
+        <div class="output-area" id="output">
+            <div class="line"><span class="prefix">$</span>พร้อมใช้งาน... กรุณาเลือกภาษาที่ต้องการ</div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button class="btn-dark" onclick="runDark()">🔮 ภาษาเบียว</button>
+        <button class="btn-genz" onclick="runGenZ()">💅 Gen Z / Alpha</button>
+        <button class="btn-love" onclick="runLove()">💖 ภาษาหวาน</button>
+    </div>
 
     <script>
-        // ==========================================
-        // 1. สไตล์ภาษาเบียว (THE DARK CHUUNIBYOU)
-        // ==========================================
-        /* คำพยากรณ์: ขุมพลังแห่งจอมมารที่ถูกกักขังในรูปของตัวแปร
-           พันธสัญญา: หากค่าลอจิกเป็นเท็จ โลกจักดับสูญ
-        */
-        const ภาชนะบรรจุวิญญาณ = true; // isLoggedIn
+        const output = document.getElementById('output');
 
-        function ปลดผนึกอาคม(สถานะตราประทับ) {
-            if (สถานะตราประทับ) {
-                // ประตูมิติเปิดออก ขุมนรกยินดีต้อนรับเจ้า
-                console.log("🌑 [DARK_LOG]: ผนึกถูกทำลาย... จอมมารหวนคืนสู่บัลลังก์!");
-            } else {
-                // พลังเวทย์อ่อนแอ เจ้าไม่มีสิทธิ์ครอบครองขุมพลังนี้
-                console.log("⚔️ [DARK_LOG]: เจ้ามนุษย์ผู้โง่เขลา! จงถอยไปก่อนที่วิญญาณจะมอดไหม้");
-            }
+        function print(text, color = '#e6edf3') {
+            const line = document.createElement('div');
+            line.className = 'line';
+            line.innerHTML = `<span class="prefix">>></span><span style="color: ${color}">${text}</span>`;
+            output.appendChild(line);
+            output.scrollTop = output.scrollHeight;
         }
-        ปลดผนึกอาคม(ภาชนะบรรจุวิญญาณ);
 
-
-        // ==========================================
-        // 2. สไตล์วัยรุ่น Gen Z / Gen Alpha (SLAY & RIZZ)
-        // ==========================================
-        /*
-           Vibe Check: โค้ดนี้คือตัวแม่ ตัวมัม แบบสับ
-           No Cap: ถ้าบัคคือสภาพ! แต่ถ้าผ่านคือมี Aura
-        */
-        const isReal = true; 
-
-        const checkVibe = (auraLevel) => {
-            if (auraLevel) {
-                // จึ้งมากแม่ ตัวมารดาจะแคร์เพื่อ
-                console.log("💅 [GEN_Z]: ผ่านแบบฉ่ำ! Rizz แบบตะโกน No Cap!");
-            } else {
-                // สภาพ! Skibidi มากวิ ไปพักก่อน
-                console.log("💀 [GEN_Z]: ตกขบวนว่ะแกรรร สภาพคือตุ๊บมาก!");
-            }
-        };
-        checkVibe(isReal);
-
-
-        // ==========================================
-        // 3. สไตล์ภาษาหวาน คู่แต่งงาน (ROMANTIC COUPLE)
-        // ==========================================
-        /*
-           สัญญาใจ: ทุกบรรทัดคือความรักที่เรามีให้กัน
-           เพราะเธอคือบ้าน: และบ้านคือที่ที่มีเธอ (และโค้ดที่รันผ่าน)
-        */
-        const มีที่รักอยู่ข้างๆ = true;
-
-        function ดูแลหัวใจ(สถานะความรัก) {
-            if (สถานะความรัก) {
-                // เพราะโลกใบนี้มีเธอ ทุกอย่างเลยสมบูรณ์แบบ
-                console.log("💖 [SWEET]: ยินดีต้อนรับกลับบ้านนะที่รัก เค้าเตรียมข้าวไว้รอแล้ว");
-            } else {
-                // ถ้าไม่มีเธอ ใจเค้าก็ Error ไปหมดเลย
-                console.log("😢 [SWEET]: เตงหายไปไหน... ใจเค้าว่างเปล่าเหมือน 404 เลย");
-            }
+        // 1. ภาษาเบียว (Chuunibyou)
+        function runDark() {
+            output.innerHTML = '';
+            print("จงตื่นขึ้น! ขุมพลังแห่งบรรพกาล...", "#bc8cff");
+            setTimeout(() => {
+                print("สลักอาคมลงบน Mainframe... [SUCCESS]", "#bc8cff");
+                print("// ผนึกโลหิต: ตรวจสอบความบริสุทธิ์ของวิญญาณ");
+                print("if (พลังเวทย์ > 9000) {");
+                print("   เปิดประตูมิติสู่ Root Directory;");
+                print("} else {");
+                print("   จงมอดไหม้ใน Error 404!!;");
+                print("}");
+            }, 500);
         }
-        ดูแลหัวใจ(มีที่รักอยู่ข้างๆ);
 
+        // 2. Gen Z / Gen Alpha
+        function runGenZ() {
+            output.innerHTML = '';
+            print("Vibe Check กำลังทำงานแบบฉ่ำๆ...", "#ff7b72");
+            setTimeout(() => {
+                print("Deploy โค้ดตัวแม่ แบบสับ! No Cap", "#ff7b72");
+                print("// สภาพ! ถ้าบัคคือตุ๊บนะวิ");
+                print("const aura = checkRizz(user);");
+                print("if (aura === 'ตัวมารดา') {");
+                print("   Slay แบบตัวมัม!;");
+                print("} else {");
+                print("   ไปพักก่อนนะ Skibidi!;");
+                print("}");
+            }, 500);
+        }
 
-        // ==========================================
-        // 4. ภาษาอังกฤษ (ENGLISH VIBE)
-        // ==========================================
-        /*
-           Documentation: The ultimate crossover of styles.
-        */
-        console.log("🚀 [GLOBAL]: Project Deployed with 100% Personality.");
+        // 3. ภาษาหวาน (Couple)
+        function runLove() {
+            output.innerHTML = '';
+            print("กำลังส่งความคิดถึงผ่านสาย LAN...", "#ffa1d2");
+            setTimeout(() => {
+                print("เชื่อมต่อหัวใจสองดวงเข้าด้วยกัน... [COMPLETE]", "#ffa1d2");
+                print("// เพราะทุกบรรทัดคือความคิดถึง");
+                print("while (เรายังมีกันและกัน) {");
+                print("   ความสุข++;");
+                print("   return 'รักเตงที่สุดในโลก';");
+                print("}");
+                print("/* บัคเดียวที่ยอมคือ บัคที่รัก (รักที่เบ้อ) */");
+            }, 500);
+        }
     </script>
-
-    </body>
+</body>
 </html>
