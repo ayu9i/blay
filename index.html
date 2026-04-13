@@ -1,163 +1,234 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CONAN: CIRCUIT SCHEMATIC 💣</title>
-    <style>
-        :root { --danger: #ff4d4d; --success: #2ecc71; --bg: #050505; --panel: #1a1a1a; --gold: #f1c40f; }
-        body { background-color: var(--bg); color: #ecf0f1; font-family: 'Courier New', monospace; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; overflow: hidden; }
-        #app-container { background: var(--panel); padding: 30px; border: 4px solid #333; border-radius: 20px; box-shadow: 0 0 50px rgba(255,0,0,0.1); width: 90%; max-width: 450px; position: relative; }
-        .digital-screen { background: #000; border: 2px solid #444; padding: 15px; border-radius: 10px; margin-bottom: 20px; text-align: center; }
-        .timer { font-size: 3rem; color: var(--danger); text-shadow: 0 0 15px var(--danger); margin: 0; font-weight: bold; }
-        .progress-bar { color: var(--gold); font-size: 1rem; margin-top: 10px; letter-spacing: 2px; }
-        .wire-box { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 20px; }
-        .wire { width: 100%; height: 80px; border-radius: 5px; cursor: pointer; transition: 0.3s; box-shadow: inset -4px 0 6px rgba(0,0,0,0.4); }
-        .wire.cut { height: 25px; background: #111 !important; cursor: default; opacity: 0.2; transform: translateY(10px); }
-        
-        /* Schematic Style */
-        #manual-overlay { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #001500; z-index: 100; padding: 25px; box-sizing: border-box; border: 2px solid var(--success); color: var(--success); overflow-y: auto; }
-        .schematic-box { border: 1px solid var(--success); padding: 15px; font-size: 0.75rem; line-height: 1.2; font-family: monospace; white-space: pre; margin-top: 10px; }
-        
-        input { background: #000; border: 1px solid var(--success); color: var(--success); padding: 12px; border-radius: 5px; width: 80%; text-align: center; font-size: 1.2rem; margin-bottom: 15px; outline: none; }
-        button { background: #222; color: #fff; border: 1px solid var(--success); padding: 10px 20px; border-radius: 5px; cursor: pointer; font-family: inherit; width: 100%; }
-        button.primary { background: var(--success); color: #000; font-weight: bold; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CONAN: CIRCUIT SCHEMATIC 💣</title>
 
-        /* Wire Colors */
-        .w0{background:#ff3e3e} .w1{background:#3498db} .w2{background:#2ecc71} .w3{background:#f1c40f} .w4{background:#9b59b6}
-        .w5{background:#e67e22} .w6{background:#ecf0f1} .w7{background:#34495e} .w8{background:#1abc9c} .w9{background:#d35400}
-    </style>
+<style>
+:root { --danger: #ff4d4d; --success: #2ecc71; --bg: #050505; --panel: #1a1a1a; --gold: #f1c40f; }
+
+body {
+  background-color: var(--bg);
+  color: #ecf0f1;
+  font-family: 'Courier New', monospace;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  margin: 0;
+  overflow: hidden;
+}
+
+#app-container {
+  background: var(--panel);
+  padding: 30px;
+  border: 4px solid #333;
+  border-radius: 20px;
+  box-shadow: 0 0 50px rgba(255,0,0,0.1);
+  width: 90%;
+  max-width: 450px;
+  position: relative;
+}
+
+.digital-screen {
+  background: #000;
+  border: 2px solid #444;
+  padding: 15px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.timer {
+  font-size: 3rem;
+  color: var(--danger);
+  text-shadow: 0 0 15px var(--danger);
+}
+
+.progress-bar {
+  color: var(--gold);
+  margin-top: 10px;
+}
+
+.wire-box {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+}
+
+.wire {
+  height: 80px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.wire.cut {
+  height: 25px;
+  background: #111 !important;
+  opacity: 0.2;
+  transform: translateY(10px);
+}
+
+.w0{background:#ff3e3e} .w1{background:#3498db} .w2{background:#2ecc71} .w3{background:#f1c40f} .w4{background:#9b59b6}
+.w5{background:#e67e22} .w6{background:#ecf0f1} .w7{background:#34495e} .w8{background:#1abc9c} .w9{background:#d35400}
+
+button {
+  margin-top: 15px;
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--success);
+  background: #222;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+#manual-overlay {
+  display: none;
+  position: absolute;
+  inset: 0;
+  background: #001500;
+  color: var(--success);
+  padding: 20px;
+  overflow: auto;
+}
+
+.schematic-box {
+  border: 1px solid var(--success);
+  padding: 10px;
+  font-size: 0.75rem;
+  white-space: pre;
+}
+
+@keyframes shake {
+  0% { transform: translate(1px,1px); }
+  50% { transform: translate(-1px,-1px); }
+  100% { transform: translate(1px,-1px); }
+}
+</style>
 </head>
+
 <body>
 
-    <div id="app-container">
-        <div id="game-view">
-            <div class="digital-screen">
-                <p class="timer" id="countdown">00:30</p>
-                <div class="progress-bar" id="progress">STEP: 0 / 10</div>
-            </div>
-            <div class="wire-box" id="wire-grid"></div>
-            <button onclick="toggleManual(true)">📂 ดูแผนผังวงจร (Schematic)</button>
-        </div>
+<div id="app-container">
 
-        <div id="lock-view" style="display: none; text-align: center;">
-            <div class="digital-screen"><p id="lock-status" style="font-size: 2.2rem; font-weight: bold; margin:0;"></p></div>
-            <p id="lock-msg" style="margin-bottom: 20px; color: #888;"></p>
-            <input type="text" id="unlock-code" placeholder="ENTER RECOVERY CODE">
-            <button class="primary" onclick="attemptUnlock()">REBOOT SYSTEM</button>
-        </div>
+<div id="game-view">
+  <div class="digital-screen">
+    <div class="timer" id="countdown">00:30</div>
+    <div class="progress-bar" id="progress">STEP: 0 / 10</div>
+  </div>
 
-        <div id="manual-overlay">
-            <h3 style="margin-top:0;">[ TOP SECRET: CIRCUIT DIAGRAM ]</h3>
-            <p>วิเคราะห์เส้นทางกระแสไฟเพื่อตัดการทำงานตามลำดับ:</p>
-            <div class="schematic-box" id="schematic-content"></div>
-            <p style="font-size: 0.7rem; color: #006600; margin-top: 10px;">หมายเหตุ: ลำดับที่ผิดพลาดจะกระตุ้นตัวจุดระเบิดทันที</p>
-            <button onclick="toggleManual(false)">ปิดหน้าต่าง</button>
-        </div>
-    </div>
+  <div class="wire-box" id="wire-grid"></div>
 
-    <script>
-        const MASTER_CODE = "gurabud";
-        const STORAGE_KEY = "conan_schematic_state";
-        let sequence = [];
-        let currentStep = 0;
-        let timeLeft = 3000; // 3000 วินาที
-        let timerInterval;
+  <button onclick="toggleManual(true)">📂 ดูแผนผัง</button>
+</div>
 
-        function init() {
-            const saved = localStorage.getItem(STORAGE_KEY);
-            if (saved) return showLockScreen(saved);
-            
-            sequence = Array.from({length: 10}, (_, i) => i).sort(() => Math.random() - 0.5);
-            renderWires();
-            generateSchematic();
-            startTimer();
-        }
+<div id="lock-view" style="display:none; text-align:center;">
+  <h2 id="lock-status"></h2>
+  <p id="lock-msg"></p>
+  <input id="unlock-code" placeholder="code">
+  <button onclick="unlock()">REBOOT</button>
+</div>
 
-        function startTimer() {
-            timerInterval = setInterval(() => {
-                timeLeft--;
-                let display = timeLeft < 10 ? `00:0${timeLeft}` : `00:${timeLeft}`;
-                document.getElementById('countdown').innerText = display;
-                if (timeLeft <= 0) {
-                    clearInterval(timerInterval);
-                    triggerEnd('dead');
-                }
-            }, 1000);
-        }
+<div id="manual-overlay">
+  <h3>[ CIRCUIT DIAGRAM ]</h3>
+  <div class="schematic-box" id="schematic-content"></div>
+  <button onclick="toggleManual(false)">ปิด</button>
+</div>
 
-        function generateSchematic() {
-            const content = document.getElementById('schematic-content');
-            // แผนผังแบบ ASCII ที่บอกใบ้ลำดับ
-            let dia = `[PWR]--+--[WIRE_${sequence[0]}]--(1st)--[LNK]\n`;
-            dia += `       |  \n`;
-            dia += `       +--[WIRE_${sequence[1]}]--(2nd)--[LNK]\n`;
-            dia += `       |  \n`;
-            dia += `       +--[WIRE_${sequence[2]}]--(3rd)--[DET]\n`;
-            dia += `\nSEQUENCE_LOG: `;
-            dia += sequence.map(s => `W${s}`).join(" -> ");
-            content.innerText = dia;
-        }
+</div>
 
-        function renderWires() {
-            const grid = document.getElementById('wire-grid');
-            for (let i = 0; i < 10; i++) {
-                const w = document.createElement('div');
-                w.className = `wire w${i}`;
-                w.id = `wire-${i}`;
-                w.onclick = () => cut(i);
-                grid.appendChild(w);
-            }
-        }
+<script>
+let sequence = [];
+let step = 0;
+let time = 30;
+let timer;
 
-        function cut(id) {
-            const el = document.getElementById(`wire-${id}`);
-            if (el.classList.contains('cut')) return;
+const correct = new Audio("https://www.soundjay.com/button/sounds/button-3.mp3");
+const wrong = new Audio("https://www.soundjay.com/button/sounds/button-10.mp3");
 
-            if (id === sequence[currentStep]) {
-                el.classList.add('cut');
-                currentStep++;
-                document.getElementById('progress').innerText = `STEP: ${currentStep} / 10`;
-                if (currentStep === 10) triggerEnd('cleared');
-            } else {
-                triggerEnd('dead');
-            }
-        }
+function vibrate(ms){ if(navigator.vibrate) navigator.vibrate(ms); }
 
-        function triggerEnd(status) {
-            clearInterval(timerInterval);
-            localStorage.setItem(STORAGE_KEY, status);
-            showLockScreen(status);
-        }
+function init(){
+  sequence = [...Array(10).keys()].sort(()=>Math.random()-0.5);
+  render();
+  schematic();
+  start();
+}
 
-        function showLockScreen(status) {
-            document.getElementById('game-view').style.display = 'none';
-            document.getElementById('lock-view').style.display = 'block';
-            const title = document.getElementById('lock-status');
-            const msg = document.getElementById('lock-msg');
+function render(){
+  const grid = document.getElementById("wire-grid");
+  grid.innerHTML="";
+  for(let i=0;i<10;i++){
+    let d=document.createElement("div");
+    d.className="wire w"+i;
+    d.onclick=()=>cut(i);
+    grid.appendChild(d);
+  }
+}
 
-            if (status === 'dead') {
-                title.innerText = "BOOM! 💥"; title.style.color = "var(--danger)";
-                msg.innerText = "เวลาหมดหรือตัดผิด... ระบบถูกทำลายแล้ว";
-                document.body.style.backgroundColor = "#1a0000";
-            } else {
-                title.innerText = "SUCCESS 🎖️"; title.style.color = "var(--success)";
-                msg.innerText = "กู้ระเบิดสำเร็จ! คุณคืออัจฉริยะแห่งยุค";
-                document.body.style.backgroundColor = "#001a00";
-            }
-        }
+function schematic(){
+  let txt="";
+  sequence.forEach((s,i)=> txt+=`WIRE_${s} (${i+1})\n`);
+  document.getElementById("schematic-content").innerText=txt;
+}
 
-        function toggleManual(show) { document.getElementById('manual-overlay').style.display = show ? 'block' : 'none'; }
+function start(){
+  timer=setInterval(()=>{
+    time--;
+    document.getElementById("countdown").innerText="00:"+String(time).padStart(2,"0");
 
-        function attemptUnlock() {
-            if (document.getElementById('unlock-code').value.toLowerCase() === MASTER_CODE) {
-                localStorage.removeItem(STORAGE_KEY);
-                location.reload();
-            } else { alert("รหัสผิด! ระบบยังคงถูกล็อค"); }
-        }
+    if(time<=10){
+      document.body.style.animation="shake 0.2s infinite";
+    }
 
-        init();
-    </script>
+    if(time<=0) end(false);
+  },1000);
+}
+
+function cut(i){
+  if(i===sequence[step]){
+    correct.play();
+    vibrate(50);
+    step++;
+    document.getElementById("progress").innerText=`STEP: ${step} / 10`;
+    if(step===10) end(true);
+  }else{
+    wrong.play();
+    vibrate(200);
+    end(false);
+  }
+}
+
+function end(win){
+  clearInterval(timer);
+  document.getElementById("game-view").style.display="none";
+  document.getElementById("lock-view").style.display="block";
+
+  if(win){
+    lock-status.innerText="DEFUSED 🎖️";
+    lock-msg.innerText="โคนันชัดๆ";
+  }else{
+    lock-status.innerText="BOOM 💥";
+    lock-msg.innerText="พลาดละ...";
+    document.body.style.background="darkred";
+  }
+}
+
+function toggleManual(s){
+  document.getElementById("manual-overlay").style.display=s?"block":"none";
+}
+
+function unlock(){
+  if(document.getElementById("unlock-code").value==="gurabud"){
+    location.reload();
+  }else alert("ผิด");
+}
+
+init();
+</script>
+
 </body>
 </html>
-
