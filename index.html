@@ -3,179 +3,483 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CONAN: THE FINAL ULTIMATUM 💣</title>
+    <title>DETECTIVE CONAN: PROJECT GENESIS 💣</title>
     <style>
-        :root { --danger: #ff0000; --success: #00ff00; --gold: #ffd700; --bg: #050505; }
-        body { background-color: var(--bg); color: white; font-family: 'Courier New', monospace; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; overflow: hidden; touch-action: manipulation; }
-        #app-container { background: #1a1a1a; padding: 25px; border: 4px solid #333; border-radius: 20px; box-shadow: 0 0 30px rgba(255,0,0,0.3); width: 95%; max-width: 480px; position: relative; }
-        
-        /* Digital Screen */
-        .digital-screen { background: #000; border: 2px solid #444; padding: 15px; border-radius: 10px; margin-bottom: 20px; text-align: center; }
-        .timer { font-size: 3.5rem; color: var(--danger); text-shadow: 0 0 15px var(--danger); font-weight: bold; margin: 0; }
-        .blink { animation: blinker 0.8s linear infinite; }
-        @keyframes blinker { 50% { opacity: 0.2; } }
+        :root {
+            --danger: #ff0000;
+            --success: #00ff00;
+            --gold: #ffd700;
+            --bg: #030303;
+            --neon-blue: #00f2ff;
+            --wire-shadow: rgba(0,0,0,0.7);
+        }
 
-        /* Wires & Flow Effect */
-        .wire-box { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 20px; }
-        .wire { width: 100%; height: 85px; border-radius: 8px; cursor: pointer; position: relative; overflow: hidden; transition: 0.3s; box-shadow: inset -4px 0 8px rgba(0,0,0,0.6); }
-        .wire::after { content: ""; position: absolute; top: -100%; left: 0; width: 100%; height: 40%; background: rgba(255,255,255,0.25); animation: flow 1.2s linear infinite; }
-        @keyframes flow { from { top: -100%; } to { top: 100%; } }
-        .wire.cut { height: 22px; background: #111 !important; cursor: default; opacity: 0.2; transform: translateY(15px); }
-        .wire.cut::after { display: none; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-        /* Setup & Modal */
-        .setup-screen { text-align: center; }
-        .diff-btn { padding: 12px; margin: 5px; cursor: pointer; border: 1px solid var(--gold); background: #222; color: var(--gold); border-radius: 8px; font-weight: bold; width: 120px; }
-        .diff-btn.active { background: var(--gold); color: black; box-shadow: 0 0 10px var(--gold); }
-        #modal { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,20,0,0.98); z-index: 100; border-radius: 20px; padding: 25px; box-sizing: border-box; border: 3px solid var(--success); color: var(--success); overflow-y: auto; }
-        
-        /* Lock View */
-        #lock-view { display: none; text-align: center; animation: pulse-bg 2s infinite; }
-        @keyframes pulse-bg { 0% { background: #1a0000; } 50% { background: #330000; } 100% { background: #1a0000; } }
-        input { background: #000; border: 2px solid var(--danger); color: var(--danger); padding: 15px; width: 85%; border-radius: 8px; text-align: center; font-size: 1.2rem; margin-bottom: 15px; font-family: inherit; }
-        
-        .shake { animation: shake-screen 0.15s infinite; }
-        @keyframes shake-screen { 0%{transform:translate(2px,2px)} 50%{transform:translate(-2px,-2px)} 100%{transform:translate(2px,-2px)} }
+        body {
+            background-color: var(--bg);
+            color: #fff;
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
 
-        /* Wire Colors */
-        .w0{background:#ff3e3e} .w1{background:#3498db} .w2{background:#2ecc71} .w3{background:#f1c40f} .w4{background:#9b59b6}
-        .w5{background:#e67e22} .w6{background:#ecf0f1} .w7{background:#34495e} .w8{background:#1abc9c} .w9{background:#d35400}
+        /* Container & Layout */
+        #main-frame {
+            background: #111;
+            border: 5px solid #333;
+            border-radius: 25px;
+            padding: 20px;
+            width: 95%;
+            max-width: 500px;
+            position: relative;
+            box-shadow: 0 0 50px rgba(0,0,0,1), inset 0 0 20px rgba(255,255,255,0.05);
+            transition: all 0.3s ease;
+        }
+
+        /* Header Info */
+        .status-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.7rem;
+            color: var(--neon-blue);
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Digital Display */
+        .display-unit {
+            background: #000;
+            border: 2px solid #222;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .display-unit::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: repeating-linear-gradient(0deg, rgba(0,0,0,0.1) 0px, rgba(0,0,0,0.1) 1px, transparent 2px);
+            pointer-events: none;
+        }
+
+        .timer-text {
+            font-size: 4rem;
+            color: var(--danger);
+            text-shadow: 0 0 20px var(--danger);
+            font-weight: 900;
+            margin: 0;
+            font-family: 'Orbitron', sans-serif; /* Fallback to monospace */
+        }
+
+        .progress-sub {
+            color: var(--gold);
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        /* Wire System */
+        .circuit-board {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+            padding: 10px;
+            background: #1a1a1a;
+            border-radius: 10px;
+            border: 1px solid #333;
+        }
+
+        .wire-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        .wire-node {
+            width: 100%;
+            height: 90px;
+            border-radius: 6px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.1s, height 0.4s;
+            box-shadow: inset -5px 0 10px var(--wire-shadow);
+        }
+
+        .wire-node::after {
+            content: "";
+            position: absolute;
+            top: -100%;
+            left: 0;
+            width: 100%;
+            height: 50%;
+            background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.4), transparent);
+            animation: flow-light 1s linear infinite;
+        }
+
+        @keyframes flow-light {
+            0% { top: -100%; }
+            100% { top: 100%; }
+        }
+
+        .wire-node.cut {
+            height: 25px;
+            background: #111 !important;
+            box-shadow: none;
+            cursor: default;
+            opacity: 0.3;
+            transform: translateY(15px);
+        }
+
+        .wire-node.cut::after { display: none; }
+
+        /* Control Panel */
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .btn {
+            background: #222;
+            border: 1px solid #444;
+            color: #fff;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: inherit;
+            transition: 0.2s;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+        }
+
+        .btn:hover { background: #333; border-color: var(--neon-blue); }
+        .btn-danger { color: var(--danger); border-color: var(--danger); }
+
+        /* Screens */
+        .view-panel { display: none; }
+        .view-panel.active { display: block; }
+
+        /* Setup Screen Spacing */
+        .setup-group { margin-bottom: 20px; text-align: center; }
+        .diff-selector { display: flex; justify-content: center; gap: 5px; }
+        .diff-btn { 
+            padding: 8px 12px; background: #000; border: 1px solid #444; color: #888; border-radius: 4px; cursor: pointer;
+        }
+        .diff-btn.selected { border-color: var(--gold); color: var(--gold); background: #222; }
+
+        /* Modal Overlay */
+        #overlay {
+            display: none;
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,10,0,0.95);
+            z-index: 100;
+            padding: 20px;
+            border-radius: 20px;
+            overflow-y: auto;
+            border: 2px solid var(--success);
+        }
+
+        /* Lock Screen Animation */
+        .shake { animation: screen-shake 0.1s infinite; }
+        @keyframes screen-shake {
+            0% { transform: translate(1px, 1px); }
+            50% { transform: translate(-1px, -2px); }
+            100% { transform: translate(1px, 2px); }
+        }
+
+        /* Score Table */
+        .score-table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 0.8rem; }
+        .score-table td { padding: 8px; border-bottom: 1px solid #003300; }
+        .highlight { color: var(--gold); }
+
+        /* Colors for 10 wires */
+        .w0 { background: #e74c3c; } .w1 { background: #3498db; }
+        .w2 { background: #2ecc71; } .w3 { background: #f1c40f; }
+        .w4 { background: #9b59b6; } .w5 { background: #e67e22; }
+        .w6 { background: #ecf0f1; } .w7 { background: #7f8c8d; }
+        .w8 { background: #1abc9c; } .w9 { background: #d35400; }
     </style>
 </head>
 <body>
 
-    <div id="app-container">
-        <div id="setup-view" class="setup-screen">
-            <h2 style="color:var(--gold); text-shadow: 0 0 5px var(--gold);">BOMB CONFIGURATION</h2>
-            <p>เลือกระดับความยาก:</p>
-            <button class="diff-btn" onclick="setDiff(1, this)">EASY (90%)</button>
-            <button class="diff-btn active" onclick="setDiff(1.8, this)">NORMAL (80%)</button>
-            <button class="diff-btn" onclick="setDiff(3.5, this)">HARD (100%)</button>
-            <p style="margin-top:20px;">ตั้งเวลา (5-999 วินาที):</p>
-            <input type="number" id="time-input" value="45" style="width:120px; border-color:var(--gold); color:var(--gold); border-radius:8px;">
-            <button onclick="startMission()" style="background:var(--danger); color:white; border:none; padding:15px; font-size:1.3rem; margin-top:15px;">ARM DEVICE 🧨</button>
+    <div id="main-frame">
+        <div class="status-header">
+            <span id="ping-display">PING: 24ms</span>
+            <span id="conn-type">SECURE-LINK: AES-256</span>
         </div>
 
-        <div id="game-view" style="display: none;">
-            <div class="digital-screen">
-                <p class="timer" id="countdown">00:00</p>
-                <div id="status-tag" style="color:var(--gold); font-size: 0.8rem; margin-top:5px;">SYSTEM: STABLE</div>
+        <div id="view-setup" class="view-panel active">
+            <div class="display-unit">
+                <h2 style="color:var(--gold); margin:0;">BOMB DESIGNER</h2>
+                <p style="font-size:0.7rem; color:#555;">SPECIFY PARAMETERS BEFORE ARMING</p>
             </div>
-            <div class="wire-box" id="wire-grid"></div>
-            <button onclick="toggleModal(true)" style="border-color:var(--success); color:var(--success);">📂 ANALYZE SCHEMATIC</button>
+            
+            <div class="setup-group">
+                <label>DIFFICULTY LEVEL</label>
+                <div class="diff-selector">
+                    <button class="diff-btn" onclick="app.setDifficulty(1, this)">EASY</button>
+                    <button class="diff-btn selected" onclick="app.setDifficulty(1.8, this)">NORMAL</button>
+                    <button class="diff-btn" onclick="app.setDifficulty(3.5, this)">HARD</button>
+                </div>
+            </div>
+
+            <div class="setup-group">
+                <label>TIMER (SEC): </label>
+                <input type="number" id="input-timer" value="30" min="5" max="999" 
+                       style="background:#000; color:var(--gold); border:1px solid #444; padding:8px; width:80px; text-align:center;">
+            </div>
+
+            <button class="btn btn-danger" onclick="app.armDevice()" 
+                    style="width:100%; padding:15px; font-weight:bold; font-size:1.1rem;">ARM SYSTEM</button>
         </div>
 
-        <div id="lock-view">
-            <h1 id="lock-status" style="font-size:3.5rem; margin:10px 0;"></h1>
-            <p id="lock-msg" style="color:#aaa; margin-bottom:20px;"></p>
-            <input type="text" id="unlock-code" placeholder="ENTER RECOVERY CODE">
-            <button onclick="attemptUnlock()" style="background:var(--danger); color:white; border:none; padding:15px;">RECOVERY SYSTEM</button>
+        <div id="view-mission" class="view-panel">
+            <div class="display-unit">
+                <p class="timer-text" id="main-timer">00:00</p>
+                <div class="progress-sub" id="progress-text">PROGRESS: 0 / 10</div>
+            </div>
+
+            <div class="circuit-board" id="wire-grid"></div>
+
+            <div class="controls">
+                <button class="btn" onclick="app.showModal('schematic')">Schematic</button>
+                <button class="btn" onclick="app.showModal('leaderboard')">Ranking</button>
+            </div>
         </div>
 
-        <div id="modal">
-            <h3 style="border-bottom:1px solid var(--success); padding-bottom:10px;">[ CASE FILE: CLASSIFIED ]</h3>
-            <div id="modal-content" style="line-height:1.6; font-size:0.85rem;"></div>
-            <button onclick="toggleModal(false)" style="margin-top:20px; background:#003300; border-color:var(--success);">CLOSE</button>
+        <div id="view-lock" class="view-panel" style="text-align:center;">
+            <div class="display-unit">
+                <h1 id="lock-title" style="margin:0; font-size:3rem;"></h1>
+                <p id="lock-msg" style="color:#666; font-size:0.8rem;"></p>
+            </div>
+            <input type="text" id="recovery-input" placeholder="ENTER RECOVERY KEY" 
+                   style="background:#000; color:red; border:2px solid red; padding:15px; width:100%; text-align:center; margin-bottom:20px; font-family:inherit;">
+            <button class="btn btn-danger" onclick="app.reboot()" style="width:100%;">SYSTEM REBOOT</button>
+        </div>
+
+        <div id="overlay">
+            <div id="modal-body"></div>
+            <button class="btn" onclick="app.hideModal()" style="width:100%; margin-top:20px;">BACK TO DEVICE</button>
         </div>
     </div>
 
     <script>
-        const RECOVERY_KEY = "gurabud";
-        const STATE_KEY = "conan_final_state";
-        let sequence = [], currentStep = 0, timeLeft = 45, timer, diffMult = 1.8;
-        const audio = new (window.AudioContext || window.webkitAudioContext)();
+        /**
+         * THE OMEGA BOMB ENGINE
+         * Encapsulated to prevent external tampering
+         */
+        const app = (() => {
+            // Configuration & State
+            const CONFIG = {
+                RECOVERY_CODE: "gurabud",
+                STORAGE_KEY: "conan_v_final_lock",
+                WIRE_NAMES: ["Red", "Blue", "Green", "Yellow", "Purple", "Orange", "White", "Dark Grey", "Mint", "Brown"]
+            };
 
-        function playBeep(f, d) {
-            const o = audio.createOscillator(), g = audio.createGain();
-            o.connect(g); g.connect(audio.destination);
-            o.frequency.value = f; g.gain.value = 0.05;
-            o.start(); setTimeout(() => o.stop(), d);
-        }
+            let state = {
+                sequence: [],
+                currentStep: 0,
+                timeLeft: 30,
+                difficulty: 1.8,
+                timerId: null,
+                isGameOver: false
+            };
 
-        function setDiff(v, b) {
-            diffMult = v;
-            document.querySelectorAll('.diff-btn').forEach(btn => btn.classList.remove('active'));
-            b.classList.add('active');
-        }
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-        function startMission() {
-            timeLeft = parseInt(document.getElementById('time-input').value) || 45;
-            document.getElementById('setup-view').style.display = 'none';
-            document.getElementById('game-view').style.display = 'block';
-            
-            sequence = Array.from({length: 10}, (_, i) => i).sort(() => Math.random() - 0.5);
-            const grid = document.getElementById('wire-grid');
-            grid.innerHTML = "";
-            for(let i=0; i<10; i++) grid.innerHTML += `<div class="wire w${i}" id="w${i}" onclick="cut(${i})"></div>`;
-            
-            timer = setInterval(() => {
-                timeLeft -= (0.1 * diffMult);
-                let sec = Math.max(0, Math.ceil(timeLeft));
-                document.getElementById('countdown').innerText = `00:${sec < 10 ? '0'+sec : sec}`;
-                
-                if(sec <= 10) {
-                    document.getElementById('countdown').classList.add('blink');
-                    playBeep(1200, 40);
-                } else { playBeep(600, 20); }
+            // Private Utilities
+            const playSound = (freq, dur, type = 'square') => {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = type;
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.frequency.value = freq;
+                gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + dur/1000);
+                osc.start();
+                osc.stop(audioCtx.currentTime + dur/1000);
+            };
 
-                if(sec <= 5) document.getElementById('app-container').classList.add('shake');
-                if(timeLeft <= 0) finalize('dead');
-            }, 100);
-        }
+            const vibrate = (ms) => {
+                if (navigator.vibrate) navigator.vibrate(ms);
+            };
 
-        function cut(id) {
-            if(document.getElementById(`w${id}`).classList.contains('cut')) return;
-            if(navigator.vibrate) navigator.vibrate(40);
-            
-            if(id === sequence[currentStep]) {
-                document.getElementById(`w${id}`).classList.add('cut');
-                playBeep(1500, 100);
-                currentStep++;
-                if(currentStep === 10) finalize('won');
-            } else { finalize('dead'); }
-        }
+            const updatePing = () => {
+                const ping = Math.floor(Math.random() * 40) + 15;
+                document.getElementById('ping-display').innerText = `PING: ${ping}ms`;
+                document.getElementById('ping-display').style.color = ping > 45 ? 'var(--danger)' : 'var(--neon-blue)';
+            };
 
-        function finalize(s) {
-            clearInterval(timer);
-            if(s === 'dead' && navigator.vibrate) navigator.vibrate([400, 100, 400]);
-            localStorage.setItem(STATE_KEY, s);
-            renderLock(s);
-        }
+            // Public Interface
+            return {
+                init: () => {
+                    setInterval(updatePing, 2000);
+                    const savedState = localStorage.getItem(CONFIG.STORAGE_KEY);
+                    if (savedState) {
+                        app.renderLock(savedState);
+                    }
+                },
 
-        function renderLock(s) {
-            document.getElementById('setup-view').style.display = 'none';
-            document.getElementById('game-view').style.display = 'none';
-            document.getElementById('lock-view').style.display = 'block';
-            const status = document.getElementById('lock-status');
-            status.innerText = s === 'dead' ? "BOOM! 💥" : "CLEAR! 🎖️";
-            status.style.color = s === 'dead' ? 'var(--danger)' : 'var(--success)';
-            document.getElementById('lock-msg').innerText = s === 'dead' ? "ความพยายามล้มเหลว... ระบบถูกทำลาย" : "กู้สำเร็จ! คุณรักษาความปลอดภัยไว้ได้";
-        }
+                setDifficulty: (val, el) => {
+                    state.difficulty = val;
+                    document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('selected'));
+                    el.classList.add('selected');
+                    playSound(440, 50);
+                },
 
-        function toggleModal(show) {
-            const m = document.getElementById('modal');
-            m.style.display = show ? 'block' : 'none';
-            if(show) {
-                document.getElementById('modal-content').innerHTML = `
-                <p style="color:var(--gold)">[ ANALYSIS LOG ]</p>
-                - พบลำดับสัญญาณ: W${sequence[0]} > W${sequence[1]} > W${sequence[2]}<br>
-                - ลำดับที่เหลือ: ${sequence.slice(3).join(' -> ')}<br><br>
-                <p style="font-size:0.7rem; color:#006600;">"ความจริงมีเพียงหนึ่งเดียวเท่านั้น... อย่าให้เวลาหลอกคุณ!"</p>`;
-            }
-        }
+                armDevice: () => {
+                    state.timeLeft = parseInt(document.getElementById('input-timer').value) || 30;
+                    state.sequence = Array.from({length: 10}, (_, i) => i).sort(() => Math.random() - 0.5);
+                    state.currentStep = 0;
+                    state.isGameOver = false;
 
-        function attemptUnlock() {
-            if(document.getElementById('unlock-code').value.toLowerCase() === RECOVERY_KEY) {
-                localStorage.removeItem(STATE_KEY);
-                location.reload();
-            } else { 
-                alert("INVALID CODE!");
-                if(navigator.vibrate) navigator.vibrate(200);
-            }
-        }
+                    // Transition to Mission
+                    document.getElementById('view-setup').classList.remove('active');
+                    document.getElementById('view-mission').classList.add('active');
 
-        const currentStatus = localStorage.getItem(STATE_KEY);
-        if(currentStatus) renderLock(currentStatus);
+                    // Render Wires
+                    const grid = document.getElementById('wire-grid');
+                    grid.innerHTML = "";
+                    for(let i=0; i<10; i++) {
+                        grid.innerHTML += `<div class="wire-container"><div class="wire-node w${i}" id="wire-${i}" onclick="app.cutWire(${i})"></div></div>`;
+                    }
+
+                    app.startCountdown();
+                    playSound(880, 200, 'sine');
+                },
+
+                startCountdown: () => {
+                    state.timerId = setInterval(() => {
+                        state.timeLeft -= (0.1 * state.difficulty);
+                        const sec = Math.max(0, Math.ceil(state.timeLeft));
+                        const display = document.getElementById('main-timer');
+                        display.innerText = `00:${sec < 10 ? '0'+sec : sec}`;
+
+                        if (sec <= 5) {
+                            document.getElementById('main-frame').classList.add('shake');
+                            playSound(1200, 50);
+                        } else {
+                            if (Math.floor(state.timeLeft * 10) % 10 === 0) playSound(600, 20);
+                        }
+
+                        if (state.timeLeft <= 0) app.endMission('dead');
+                    }, 100);
+                },
+
+                cutWire: (id) => {
+                    if (state.isGameOver) return;
+                    const el = document.getElementById(`wire-${id}`);
+                    if (el.classList.contains('cut')) return;
+
+                    vibrate(50);
+                    if (id === state.sequence[state.currentStep]) {
+                        el.classList.add('cut');
+                        state.currentStep++;
+                        document.getElementById('progress-text').innerText = `PROGRESS: ${state.currentStep} / 10`;
+                        playSound(1500, 80);
+                        if (state.currentStep === 10) app.endMission('won');
+                    } else {
+                        app.endMission('dead');
+                    }
+                },
+
+                endMission: (result) => {
+                    state.isGameOver = true;
+                    clearInterval(state.timerId);
+                    document.getElementById('main-frame').classList.remove('shake');
+                    localStorage.setItem(CONFIG.STORAGE_KEY, result);
+                    
+                    if (result === 'dead') {
+                        vibrate([500, 100, 500]);
+                        playSound(100, 1000, 'sawtooth');
+                    } else {
+                        playSound(2000, 500, 'sine');
+                    }
+                    
+                    setTimeout(() => app.renderLock(result), 500);
+                },
+
+                renderLock: (result) => {
+                    document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active'));
+                    document.getElementById('view-lock').classList.add('active');
+                    
+                    const title = document.getElementById('lock-title');
+                    const msg = document.getElementById('lock-msg');
+                    
+                    if (result === 'dead') {
+                        title.innerText = "BOOM! 💥";
+                        title.style.color = "var(--danger)";
+                        msg.innerText = "CRITICAL ERROR: DETONATION TRIGGERED. SYSTEM WIPED.";
+                        document.body.style.backgroundColor = "#200";
+                    } else {
+                        title.innerText = "SECURED 🎖️";
+                        title.style.color = "var(--success)";
+                        msg.innerText = "ALL NODES DEACTIVATED. POLICE EN ROUTE.";
+                        document.body.style.backgroundColor = "#002";
+                    }
+                },
+
+                showModal: (type) => {
+                    const overlay = document.getElementById('overlay');
+                    const body = document.getElementById('modal-body');
+                    overlay.style.display = 'block';
+
+                    if (type === 'schematic') {
+                        body.innerHTML = `
+                            <h2 style="color:var(--neon-blue)">[ CIRCUIT SCHEMATIC ]</h2>
+                            <p style="font-size:0.7rem;">LOGICAL FLOW DETECTED:</p>
+                            <div style="background:#000; padding:15px; border:1px dashed var(--success); color:var(--success); font-family:monospace;">
+                                ${state.sequence.map((w, i) => `STEP_${i+1}: NODE_${w} (${CONFIG.WIRE_NAMES[w]})`).join('<br>')}
+                            </div>
+                            <p style="color:#555; font-size:0.6rem; margin-top:10px;">NOTE: ANY DEVIATION CAUSES DETONATION.</p>
+                        `;
+                    } else {
+                        body.innerHTML = `
+                            <h2 style="color:var(--gold)">🏆 TOP DEFUSERS</h2>
+                            <table class="score-table">
+                                <tr class="highlight"><td>1. Kudo Shinichi</td><td>00:04.2s</td></tr>
+                                <tr><td>2. Kaitou Kid</td><td>00:05.1s</td></tr>
+                                <tr><td>3. Akai Shuichi</td><td>00:08.4s</td></tr>
+                                <tr><td>4. Amuro Tooru</td><td>00:10.0s</td></tr>
+                                <tr class="highlight"><td>5. YOU</td><td>--:--</td></tr>
+                            </table>
+                        `;
+                    }
+                },
+
+                hideModal: () => {
+                    document.getElementById('overlay').style.display = 'none';
+                },
+
+                reboot: () => {
+                    const input = document.getElementById('recovery-input').value.toLowerCase();
+                    if (input === CONFIG.RECOVERY_CODE) {
+                        localStorage.removeItem(CONFIG.STORAGE_KEY);
+                        location.reload();
+                    } else {
+                        vibrate(200);
+                        alert("ACCESS DENIED: INVALID SECURITY KEY");
+                    }
+                }
+            };
+        })();
+
+        // Start Application
+        window.onload = app.init;
     </script>
 </body>
 </html>
